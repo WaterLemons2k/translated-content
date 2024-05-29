@@ -21,7 +21,7 @@ event.preventDefault()
 
 ### 阻止默认的点击事件执行
 
-选中复选框是点击复选框的默认行为。下面这个例子说明了怎样阻止默认行为的发生：
+切换复选框是点击复选框的默认行为。下面这个例子说明了怎样阻止默认行为的发生：
 
 #### JavaScript
 
@@ -52,13 +52,11 @@ function checkboxClick(event) {
 
 #### 结果
 
-你可以看到如下的行为：
-
 {{EmbedLiveSample("阻止默认的点击事件执行")}}
 
 ### 在编辑域中阻止按键
 
-下面的这个例子说明了如何使用 `preventDefault()` 在文本编辑域中阻止有效的文本输入。如今，你通常可以使用[原生的 HTML 表单验证](/zh-CN/docs/Learn/Forms/Form_validation)来代替。
+下面的这个例子说明了如何使用 `preventDefault()` 在文本编辑域中阻止无效的文本输入。如今，你通常可以使用[原生的 HTML 表单验证](/zh-CN/docs/Learn/Forms/Form_validation)来代替。
 
 #### HTML
 
@@ -69,14 +67,14 @@ function checkboxClick(event) {
   <p>Please enter your name using lowercase letters only.</p>
 
   <form>
-    <input type="text" id="my-textbox" />
+    <input type="text" id="my-textbox" autocomplete="off" />
   </form>
 </div>
 ```
 
 #### CSS
 
-当用户按下一个有效按键的时候，我们就给这个 warning box 加上一些样式：
+用一些 CSS 来制作当用户按下无效按键时绘制的警告框：
 
 ```css
 .warning {
@@ -91,51 +89,46 @@ function checkboxClick(event) {
 
 #### JavaScript
 
-这里是相关的 JavaScript 代码。首先，监听 [`keypress`](/zh-CN/docs/Web/API/Element/keypress_event) 事件：
+这里是相关的 JavaScript 代码。首先，监听 [`keydown`](/zh-CN/docs/Web/API/Element/keypress_event) 事件：
 
 ```js
-var myTextbox = document.getElementById("my-textbox");
-myTextbox.addEventListener("keypress", checkName, false);
+const myTextbox = document.getElementById("my-textbox");
+myTextbox.addEventListener("keydown", checkName, false);
 ```
 
-`checkName()` 方法可以监听按键并且决定是否允许按键的默认行为发生。
+`checkName()` 方法可以查看按下的键并决定是否允许：
 
 ```js
 function checkName(evt) {
-  var charCode = evt.charCode;
-  if (charCode != 0) {
-    if (charCode < 97 || charCode > 122) {
-      evt.preventDefault();
-      displayWarning(
-        "Please use lowercase letters only." +
-          "\n" +
-          "charCode: " +
-          charCode +
-          "\n",
-      );
-    }
+  const key = evt.key;
+  const lowerCaseAlphabet = "abcdefghijklmnopqrstuvwxyz";
+  if (!lowerCaseAlphabet.includes(key)) {
+    evt.preventDefault();
+    displayWarning(
+      "Please use lowercase letters only.\n" + `Key pressed: ${key}\n`
+    );
   }
 }
 ```
 
-`displayWarning()` 方法显示了一个问题的通知。这不是一种优雅的方法，但是确实可以达到我们的目的。
+`displayWarning()` 方法显示问题通知。这种方法并不优雅，但在这个例子中可行：
 
 ```js
-var warningTimeout;
-var warningBox = document.createElement("div");
+let warningTimeout;
+const warningBox = document.createElement("div");
 warningBox.className = "warning";
 
 function displayWarning(msg) {
   warningBox.innerHTML = msg;
 
   if (document.body.contains(warningBox)) {
-    window.clearTimeout(warningTimeout);
+    clearTimeout(warningTimeout);
   } else {
     // insert warningBox after myTextbox
     myTextbox.parentNode.insertBefore(warningBox, myTextbox.nextSibling);
   }
 
-  warningTimeout = window.setTimeout(function () {
+  warningTimeout = setTimeout(() => {
     warningBox.parentNode.removeChild(warningBox);
     warningTimeout = -1;
   }, 2000);
@@ -143,8 +136,6 @@ function displayWarning(msg) {
 ```
 
 #### 结果
-
-这里就是代码的执行结果：
 
 {{ EmbedLiveSample('在编辑域中阻止按键', 600, 200) }}
 
